@@ -108,7 +108,7 @@ public class YenTopKShortestPathsAlg
 		if(_source_vertex != null && _target_vertex != null)
 		{
 			Path shortest_path = get_shortest_path(_source_vertex, _target_vertex);
-			if(!shortest_path.get_vertices().isEmpty())
+			if(!shortest_path.getVertexList().isEmpty())
 			{
 				_path_candidates.add(shortest_path);
 				_path_derivation_vertex_index.put(shortest_path, _source_vertex);				
@@ -164,7 +164,7 @@ public class YenTopKShortestPathsAlg
 
 		BaseVertex cur_derivation = _path_derivation_vertex_index.get(cur_path);
 		int cur_path_hash = 
-			cur_path.get_vertices().subList(0, cur_path.get_vertices().indexOf(cur_derivation)).hashCode();
+			cur_path.getVertexList().subList(0, cur_path.getVertexList().indexOf(cur_derivation)).hashCode();
 		
 		int count = _result_list.size();
 		
@@ -174,30 +174,30 @@ public class YenTopKShortestPathsAlg
 			Path cur_result_path = _result_list.get(i);
 							
 			int cur_dev_vertex_id = 
-				cur_result_path.get_vertices().indexOf(cur_derivation);
+				cur_result_path.getVertexList().indexOf(cur_derivation);
 			
 			if(cur_dev_vertex_id < 0) continue;
 
 			// Note that the following condition makes sure all candidates should be considered. 
 			/// The algorithm in the paper is not correct for removing some candidates by mistake. 
-			int path_hash = cur_result_path.get_vertices().subList(0, cur_dev_vertex_id).hashCode();
+			int path_hash = cur_result_path.getVertexList().subList(0, cur_dev_vertex_id).hashCode();
 			if(path_hash != cur_path_hash) continue;
 			
 			BaseVertex cur_succ_vertex = 
-				cur_result_path.get_vertices().get(cur_dev_vertex_id+1);
+				cur_result_path.getVertexList().get(cur_dev_vertex_id+1);
 			
-			_graph.remove_edge(new Pair<Integer,Integer>(
-					cur_derivation.get_id(), cur_succ_vertex.get_id()));
+			_graph.deleteEdge(new Pair<Integer,Integer>(
+					cur_derivation.getId(), cur_succ_vertex.getId()));
 		}
 		
-		int path_length = cur_path.get_vertices().size();
-		List<BaseVertex> cur_path_vertex_list = cur_path.get_vertices();
+		int path_length = cur_path.getVertexList().size();
+		List<BaseVertex> cur_path_vertex_list = cur_path.getVertexList();
 		for(int i=0; i<path_length-1; ++i)
 		{
-			_graph.remove_vertex(cur_path_vertex_list.get(i).get_id());
-			_graph.remove_edge(new Pair<Integer,Integer>(
-					cur_path_vertex_list.get(i).get_id(), 
-					cur_path_vertex_list.get(i+1).get_id()));
+			_graph.deleteVertex(cur_path_vertex_list.get(i).getId());
+			_graph.deleteEdge(new Pair<Integer,Integer>(
+					cur_path_vertex_list.get(i).getId(), 
+					cur_path_vertex_list.get(i+1).getId()));
 		}
 		
 		//3.3 calculate the shortest tree rooted at target vertex in the graph
@@ -210,10 +210,10 @@ public class YenTopKShortestPathsAlg
 		{
 			//3.4.1 get the vertex to be recovered
 			BaseVertex cur_recover_vertex = cur_path_vertex_list.get(i);			
-			_graph.recover_removed_vertex(cur_recover_vertex.get_id());
+			_graph.recoverDeletedVertex(cur_recover_vertex.getId());
 			
 			//3.4.2 check if we should stop continuing in the next iteration
-			if(cur_recover_vertex.get_id() == cur_derivation.get_id()) 
+			if(cur_recover_vertex.getId() == cur_derivation.getId()) 
 			{
 				is_done = true;
 			}
@@ -234,22 +234,22 @@ public class YenTopKShortestPathsAlg
 				for(int j=0; j<path_length; ++j)
 				{
 					BaseVertex cur_vertex = cur_path_vertex_list.get(j);
-					if(cur_vertex.get_id() == cur_recover_vertex.get_id())
+					if(cur_vertex.getId() == cur_recover_vertex.getId())
 					{
 						j=path_length;
 					}else
 					{
-						cost += _graph.get_edge_weight_of_graph(cur_path_vertex_list.get(j), 
+						cost += _graph.getEdgeWeightOfGraph(cur_path_vertex_list.get(j), 
 								cur_path_vertex_list.get(j+1));
 						pre_path_list.add(cur_vertex);
 					}
 				}
-				pre_path_list.addAll(sub_path.get_vertices());
+				pre_path_list.addAll(sub_path.getVertexList());
 
 				//3.4.4.2 compose a candidate
-				sub_path.set_weight(cost+sub_path.get_weight());
-				sub_path.get_vertices().clear();
-				sub_path.get_vertices().addAll(pre_path_list);
+				sub_path.setWeight(cost+sub_path.getWeight());
+				sub_path.getVertexList().clear();
+				sub_path.getVertexList().addAll(pre_path_list);
 				
 				//3.4.4.3 put it in the candidate pool if new
 				if(!_path_derivation_vertex_index.containsKey(sub_path))
@@ -261,11 +261,11 @@ public class YenTopKShortestPathsAlg
 			
 			//3.4.5 restore the edge
 			BaseVertex succ_vertex = cur_path_vertex_list.get(i+1); 
-			_graph.recover_removed_edge(new Pair<Integer, Integer>(
-					cur_recover_vertex.get_id(), succ_vertex.get_id()));
+			_graph.recoverDeletedEdge(new Pair<Integer, Integer>(
+					cur_recover_vertex.getId(), succ_vertex.getId()));
 			
 			//3.4.6 update cost if necessary
-			double cost_1 = _graph.get_edge_weight(cur_recover_vertex, succ_vertex) 
+			double cost_1 = _graph.getEdgeWeight(cur_recover_vertex, succ_vertex) 
 				+ reverse_tree.get_start_vertex_distance_index().get(succ_vertex);
 			
 			if(reverse_tree.get_start_vertex_distance_index().get(cur_recover_vertex) >  cost_1)
@@ -277,8 +277,8 @@ public class YenTopKShortestPathsAlg
 		}
 		
 		//3.5 restore everything
-		_graph.recover_removed_edges();
-		_graph.recover_removed_vertices();
+		_graph.recoverDeletedEdges();
+		_graph.recoverDeletedVertices();
 		
 		//
 		return cur_path;

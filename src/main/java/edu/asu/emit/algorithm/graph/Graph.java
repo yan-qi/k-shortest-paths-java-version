@@ -50,47 +50,47 @@ import edu.asu.emit.algorithm.graph.abstraction.BaseGraph;
 import edu.asu.emit.algorithm.graph.abstraction.BaseVertex;
 import edu.asu.emit.algorithm.utils.Pair;
 
+
 /**
- * @author <a href='mailto:Yan.Qi@asu.edu'>Yan Qi</a>
- * @version $Revision: 783 $
- * @latest $Date: 2009-06-19 12:19:27 -0700 (Fri, 19 Jun 2009) $
+ * The class defines a directed graph.
+ * 
+ * @author yqi
  */
-public class Graph implements BaseGraph
-{
-	public final static double DISCONNECTED = Double.MAX_VALUE;
+public class Graph implements BaseGraph {
+	
+	public static final double DISCONNECTED = Double.MAX_VALUE;
 	
 	// index of fan-outs of one vertex
-	protected Map<Integer, Set<BaseVertex>> _fanout_vertices_index =
+	protected Map<Integer, Set<BaseVertex>> fanoutVerticesIndex =
 		new HashMap<Integer, Set<BaseVertex>>();
 	
 	// index for fan-ins of one vertex
-	protected Map<Integer, Set<BaseVertex>> _fanin_vertices_index =
+	protected Map<Integer, Set<BaseVertex>> faninVerticesIndex =
 		new HashMap<Integer, Set<BaseVertex>>();
 	
 	// index for edge weights in the graph
-	protected Map<Pair<Integer, Integer>, Double> _vertex_pair_weight_index = 
-		new HashMap<Pair<Integer,Integer>, Double>();
+	protected Map<Pair<Integer, Integer>, Double> vertexPairWeightIndex = 
+		new HashMap<Pair<Integer, Integer>, Double>();
 	
 	// index for vertices in the graph
-	protected Map<Integer, BaseVertex> _id_vertex_index = 
+	protected Map<Integer, BaseVertex> idVertexIndex = 
 		new HashMap<Integer, BaseVertex>();
 	
 	// list of vertices in the graph 
-	protected List<BaseVertex> _vertex_list = new Vector<BaseVertex>();
+	protected List<BaseVertex> vertexList = new Vector<BaseVertex>();
 	
 	// the number of vertices in the graph
-	protected int _vertex_num = 0;
+	protected int vertexNum = 0;
 	
 	// the number of arcs in the graph
-	protected int _edge_num = 0;
+	protected int edgeNum = 0;
 	
 	/**
 	 * Constructor 1 
-	 * @param data_file_name
+	 * @param dataFileName
 	 */
-	public Graph(final String data_file_name)
-	{
-		import_from_file(data_file_name);
+	public Graph(final String dataFileName) {
+		importFromFile(dataFileName);
 	}
 	
 	/**
@@ -98,99 +98,88 @@ public class Graph implements BaseGraph
 	 * 
 	 * @param graph
 	 */
-	public Graph(final Graph graph_)
-	{
-		_vertex_num = graph_._vertex_num;
-		_edge_num = graph_._edge_num;
-		_vertex_list.addAll(graph_._vertex_list);
-		_id_vertex_index.putAll(graph_._id_vertex_index);
-		_fanin_vertices_index.putAll(graph_._fanin_vertices_index);
-		_fanout_vertices_index.putAll(graph_._fanout_vertices_index);
-		_vertex_pair_weight_index.putAll(graph_._vertex_pair_weight_index);
+	public Graph(final Graph graph) {
+		vertexNum = graph.vertexNum;
+		edgeNum = graph.edgeNum;
+		vertexList.addAll(graph.vertexList);
+		idVertexIndex.putAll(graph.idVertexIndex);
+		faninVerticesIndex.putAll(graph.faninVerticesIndex);
+		fanoutVerticesIndex.putAll(graph.fanoutVerticesIndex);
+		vertexPairWeightIndex.putAll(graph.vertexPairWeightIndex);
 	}
 	
 	/**
 	 * Default constructor 
 	 */
-	public Graph(){};
+	public Graph() { }
 	
 	/**
 	 * Clear members of the graph.
 	 */
-	public void clear()
-	{
+	public void clear() {
 		Vertex.reset();
-		_vertex_num = 0;
-		_edge_num = 0; 
-		_vertex_list.clear();
-		_id_vertex_index.clear();
-		_fanin_vertices_index.clear();
-		_fanout_vertices_index.clear();
-		_vertex_pair_weight_index.clear();
+		vertexNum = 0;
+		edgeNum = 0; 
+		vertexList.clear();
+		idVertexIndex.clear();
+		faninVerticesIndex.clear();
+		fanoutVerticesIndex.clear();
+		vertexPairWeightIndex.clear();
 	}
 	
 	/**
 	 * There is a requirement for the input graph. 
 	 * The ids of vertices must be consecutive. 
 	 *  
-	 * @param data_file_name
+	 * @param dataFileName
 	 */
-	public void import_from_file(final String data_file_name)
-	{
+	public void importFromFile(final String dataFileName) {
+		
 		// 0. Clear the variables 
 		clear();
 		
-		try
-		{
+		try	{
 			// 1. read the file and put the content in the buffer
-			FileReader input = new FileReader(data_file_name);
+			FileReader input = new FileReader(dataFileName);
 			BufferedReader bufRead = new BufferedReader(input);
 
-			boolean is_first_line = true;
+			boolean isFirstLine = true;
 			String line; 	// String that holds current file line
 			
 			// 2. Read first line
 			line = bufRead.readLine();
-			while(line != null)
-			{
+			while (line != null) {
 				// 2.1 skip the empty line
-				if(line.trim().equals("")) 
-				{
+				if (line.trim().equals("")) {
 					line = bufRead.readLine();
 					continue;
 				}
 				
 				// 2.2 generate nodes and edges for the graph
-				if(is_first_line)
-				{
+				if (isFirstLine) {
 					//2.2.1 obtain the number of nodes in the graph 
-					
-					is_first_line = false;
-					_vertex_num = Integer.parseInt(line.trim());
-					for(int i=0; i<_vertex_num; ++i)
-					{
+					isFirstLine = false;
+					vertexNum = Integer.parseInt(line.trim());
+					for (int i=0; i<vertexNum; ++i) {
 						BaseVertex vertex = new Vertex();
-						_vertex_list.add(vertex);
-						_id_vertex_index.put(vertex.get_id(), vertex);
+						vertexList.add(vertex);
+						idVertexIndex.put(vertex.getId(), vertex);
 					}
-					
-				}else
-				{
+				} else {
 					//2.2.2 find a new edge and put it in the graph  
-					String[] str_list = line.trim().split("\\s");
+					String[] strList = line.trim().split("\\s");
 					
-					int start_vertex_id = Integer.parseInt(str_list[0]);
-					int end_vertex_id = Integer.parseInt(str_list[1]);
-					double weight = Double.parseDouble(str_list[2]);
-					add_edge(start_vertex_id, end_vertex_id, weight);
+					int startVertexId = Integer.parseInt(strList[0]);
+					int endVertexId = Integer.parseInt(strList[1]);
+					double weight = Double.parseDouble(strList[2]);
+					addEdge(startVertexId, endVertexId, weight);
 				}
 				//
 				line = bufRead.readLine();
 			}
 			bufRead.close();
 
-		}catch (IOException e)
-		{
+		} catch (IOException e) {
 			// If another exception is generated, print a stack trace
 			e.printStackTrace();
 		}
@@ -200,118 +189,94 @@ public class Graph implements BaseGraph
 	 * Note that this may not be used externally, because some other members in the class
 	 * should be updated at the same time. 
 	 * 
-	 * @param start_vertex_id
-	 * @param end_vertex_id
+	 * @param startVertexId
+	 * @param endVertexId
 	 * @param weight
 	 */
-	protected void add_edge(int start_vertex_id, int end_vertex_id, double weight)
-	{
+	protected void addEdge(int startVertexId, int endVertexId, double weight) {
 		// actually, we should make sure all vertices ids must be correct. 
-		if(!_id_vertex_index.containsKey(start_vertex_id)
-		|| !_id_vertex_index.containsKey(end_vertex_id) 
-		|| start_vertex_id == end_vertex_id)
-		{
-			throw new IllegalArgumentException("The edge from "+start_vertex_id
-					+" to "+end_vertex_id+" does not exist in the graph.");
+		if (!idVertexIndex.containsKey(startVertexId) || 
+			!idVertexIndex.containsKey(endVertexId) || 
+			startVertexId == endVertexId) {
+			throw new IllegalArgumentException("The edge from " + startVertexId +
+					" to " + endVertexId + " does not exist in the graph.");
 		}
 		
 		// update the adjacent-list of the graph
-		Set<BaseVertex> fanout_vertex_set = new HashSet<BaseVertex>();
-		if(_fanout_vertices_index.containsKey(start_vertex_id))
-		{
-			fanout_vertex_set = _fanout_vertices_index.get(start_vertex_id);
+		Set<BaseVertex> fanoutVertexSet = new HashSet<BaseVertex>();
+		if (fanoutVerticesIndex.containsKey(startVertexId)) {
+			fanoutVertexSet = fanoutVerticesIndex.get(startVertexId);
 		}
-		fanout_vertex_set.add(_id_vertex_index.get(end_vertex_id));
-		_fanout_vertices_index.put(start_vertex_id, fanout_vertex_set);
-		
+		fanoutVertexSet.add(idVertexIndex.get(endVertexId));
+		fanoutVerticesIndex.put(startVertexId, fanoutVertexSet);
 		//
-		Set<BaseVertex> fanin_vertex_set = new HashSet<BaseVertex>();
-		if(_fanin_vertices_index.containsKey(end_vertex_id))
-		{
-			fanin_vertex_set = _fanin_vertices_index.get(end_vertex_id);
+		Set<BaseVertex> faninVertexSet = new HashSet<BaseVertex>();
+		if (faninVerticesIndex.containsKey(endVertexId)) {
+			faninVertexSet = faninVerticesIndex.get(endVertexId);
 		}
-		fanin_vertex_set.add(_id_vertex_index.get(start_vertex_id));
-		_fanin_vertices_index.put(end_vertex_id, fanin_vertex_set);
-
+		faninVertexSet.add(idVertexIndex.get(startVertexId));
+		faninVerticesIndex.put(endVertexId, faninVertexSet);
 		// store the new edge 
-		_vertex_pair_weight_index.put(
-				new Pair<Integer, Integer>(start_vertex_id, end_vertex_id), 
+		vertexPairWeightIndex.put(
+				new Pair<Integer, Integer>(startVertexId, endVertexId), 
 				weight);
-		
-		++_edge_num;
+		++edgeNum;
 	}
 	
 	/**
 	 * Store the graph information into a file. 
 	 * 
-	 * @param file_name
+	 * @param fileName
 	 */
-	public void export_to_file(final String file_name)
-	{
+	public void exportToFile(final String fileName) {
 		//1. prepare the text to export
 		StringBuffer sb = new StringBuffer();
-		sb.append(_vertex_num+"\n\n");
-		for(Pair<Integer, Integer> cur_edge_pair : _vertex_pair_weight_index.keySet())
-		{
-			int starting_pt_id = cur_edge_pair.first();
-			int ending_pt_id = cur_edge_pair.second();
-			double weight = _vertex_pair_weight_index.get(cur_edge_pair);
-			sb.append(starting_pt_id+"	"+ending_pt_id+"	"+weight+"\n");
+		sb.append(vertexNum + "\n\n");
+		for (Pair<Integer, Integer> curEdgePair : vertexPairWeightIndex.keySet()) {
+			int startingPtId = curEdgePair.first();
+			int endingPtId = curEdgePair.second();
+			double weight = vertexPairWeightIndex.get(curEdgePair);
+			sb.append(startingPtId + "	" + endingPtId + "	" + weight + "\n");
 		}
 		//2. open the file and put the data into the file. 
 		Writer output = null;
 		try {
-			// use buffering
 			// FileWriter always assumes default encoding is OK!
-			output = new BufferedWriter(new FileWriter(new File(file_name)));
+			output = new BufferedWriter(new FileWriter(new File(fileName)));
 			output.write(sb.toString());
-		}catch(FileNotFoundException e)
-		{
+		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-		}catch(IOException e)
-		{
+		} catch (IOException e) {
 			e.printStackTrace();
-		}finally {
+		} finally {
 			// flush and close both "output" and its underlying FileWriter
-			try
-			{
-				if (output != null) output.close();
-			} catch(IOException e)
-			{
+			try {
+				if (output != null) {
+					output.close();
+				}
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see edu.asu.emit.qyan.alg.model.abstracts.BaseGraph#get_adjacent_vertices(edu.asu.emit.qyan.alg.model.abstracts.BaseVertex)
-	 */
-	public Set<BaseVertex> get_adjacent_vertices(BaseVertex vertex)
-	{
-		return _fanout_vertices_index.containsKey(vertex.get_id()) 
-				? _fanout_vertices_index.get(vertex.get_id()) 
+	public Set<BaseVertex> getAdjacentVertices(BaseVertex vertex) {
+		return fanoutVerticesIndex.containsKey(vertex.getId()) 
+				? fanoutVerticesIndex.get(vertex.getId()) 
 				: new HashSet<BaseVertex>();
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.asu.emit.qyan.alg.model.abstracts.BaseGraph#get_precedent_vertices(edu.asu.emit.qyan.alg.model.abstracts.BaseVertex)
-	 */
-	public Set<BaseVertex> get_precedent_vertices(BaseVertex vertex)
-	{
-		return _fanin_vertices_index.containsKey(vertex.get_id()) 
-				? _fanin_vertices_index.get(vertex.get_id()) 
+	public Set<BaseVertex> getPrecedentVertices(BaseVertex vertex) {
+		return faninVerticesIndex.containsKey(vertex.getId()) 
+				? faninVerticesIndex.get(vertex.getId()) 
 				: new HashSet<BaseVertex>();
 	}
 	
-	/* (non-Javadoc)
-	 * @see edu.asu.emit.qyan.alg.model.abstracts.BaseGraph#get_edge_weight(edu.asu.emit.qyan.alg.model.abstracts.BaseVertex, edu.asu.emit.qyan.alg.model.abstracts.BaseVertex)
-	 */
-	public double get_edge_weight(BaseVertex source, BaseVertex sink)
-	{
-		return _vertex_pair_weight_index.containsKey(
-					new Pair<Integer, Integer>(source.get_id(), sink.get_id()))? 
-							_vertex_pair_weight_index.get(
-									new Pair<Integer, Integer>(source.get_id(), sink.get_id())) 
+	public double getEdgeWeight(BaseVertex source, BaseVertex sink)	{
+		return vertexPairWeightIndex.containsKey(
+					new Pair<Integer, Integer>(source.getId(), sink.getId()))? 
+							vertexPairWeightIndex.get(
+									new Pair<Integer, Integer>(source.getId(), sink.getId())) 
 						  : DISCONNECTED;
 	}
 
@@ -319,17 +284,15 @@ public class Graph implements BaseGraph
 	 * Set the number of vertices in the graph
 	 * @param num
 	 */
-	public void set_vertex_num(int num)
-	{
-		_vertex_num = num;
+	public void setVertexNum(int num) {
+		vertexNum = num;
 	}
 	
 	/**
 	 * Return the vertex list in the graph.
 	 */
-	public List<BaseVertex> get_vertex_list()
-	{
-		return _vertex_list;
+	public List<BaseVertex> getVertexList() {
+		return vertexList;
 	}
 	
 	/**
@@ -338,8 +301,7 @@ public class Graph implements BaseGraph
 	 * @param id
 	 * @return
 	 */
-	public BaseVertex get_vertex(int id)
-	{
-		return _id_vertex_index.get(id);
+	public BaseVertex getVertex(int id) {
+		return idVertexIndex.get(id);
 	}
 }

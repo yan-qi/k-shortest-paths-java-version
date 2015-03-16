@@ -33,52 +33,44 @@ package edu.asu.emit.algorithm.graph;
 import edu.asu.emit.algorithm.graph.abstraction.BaseVertex;
 
 /**
- * @author <a href='mailto:Yan.Qi@asu.edu'>Yan Qi</a>
- * @version $Revision: 46 $
- * @latest $Date: 2010-06-05 00:54:27 -0700 (Sat, 05 Jun 2010) $
+ * The class defines a vertex in the graph
+ * 
+ * @author yqi
  */
-public class Vertex implements BaseVertex, Comparable<Vertex>
-{
-	private static int CURRENT_VERTEX_NUM = 0;
-	private int _id = CURRENT_VERTEX_NUM++;
-	private double _weight = 0;
+public class Vertex implements BaseVertex, Comparable<Vertex> {
 	
-	/**
-	 * 
-	 */
-	public int get_id()
-	{
-		return _id;
+	private static int currentVertexNum = 0; // Uniquely identify each vertex
+	private int id = currentVertexNum++;
+	private double weight = 0;
+	
+	public int getId() {
+		return id;
 	}
 
-	public String toString()
-	{
-		return ""+_id;
+	public String toString() {
+		return "" + id;
 	}
 
-	public double get_weight()
-	{
-		return _weight;
+	public double getWeight() {
+		return weight;
 	}
 	
-	public void set_weight(double status)
-	{
-		_weight = status;
+	public void setWeight(double status) {
+		weight = status;
 	}
 	
-	public int compareTo(Vertex r_vertex)
-	{
-		double diff = this._weight - r_vertex._weight;
-		if(diff > 0)
+	public int compareTo(Vertex rVertex) {
+		double diff = this.weight - rVertex.weight;
+		if (diff > 0) {
 			return 1;
-		else if(diff < 0)
+		} else if (diff < 0) {
 			return -1;
-		else 
+		} else { 
 			return 0;
+		}
 	}
 	
-	public static void reset()
-	{
-		CURRENT_VERTEX_NUM = 0;
+	public static void reset() {
+		currentVertexNum = 0;
 	}
 }

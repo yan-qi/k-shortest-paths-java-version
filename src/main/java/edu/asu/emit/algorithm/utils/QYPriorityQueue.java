@@ -36,38 +36,33 @@ import java.util.List;
 import edu.asu.emit.algorithm.graph.abstraction.BaseElementWithWeight;
 
 /**
- * @author <a href='mailto:Yan.Qi@asu.edu'>Yan Qi</a>
- * @version $Revision: 673 $
- * @latest $Id: QYPriorityQueue.java 673 2009-02-05 08:19:18Z qyan $
+ * The class defines a priority queue. 
+ * @author yqi
+ * @date Mar 16, 2015
+ * @param <E> the type of the element in the queue
  */
-public class QYPriorityQueue<E extends BaseElementWithWeight>
-{
-	List<E> _element_weight_pair_list = new LinkedList<E>();
-	int _limit_size = -1;
-	boolean _is_incremental = false; 
+public class QYPriorityQueue<E extends BaseElementWithWeight> {
+	private List<E> elementWeightPairList = new LinkedList<E>();
+	private int limitSize = -1;
+	private boolean isIncremental = false; 
 	
 	/**
 	 * Default constructor. 
 	 */
-	public QYPriorityQueue(){};
+	public QYPriorityQueue() { }
 	
 	/**
 	 * Constructor. 
-	 * @param limit_size
+	 * @param pLimitSize
 	 */
-	public QYPriorityQueue(int limit_size, boolean is_incremental)
-	{
-		_limit_size = limit_size;
-		_is_incremental = is_incremental;
+	public QYPriorityQueue(int pLimitSize, boolean pIsIncremental) {
+		limitSize = pLimitSize;
+		isIncremental = pIsIncremental;
 	}
 		
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
-	public String toString()
-	{
-		return _element_weight_pair_list.toString();
+	public String toString() {
+		return elementWeightPairList.toString();
 	}
 	
 	/**
@@ -76,34 +71,27 @@ public class QYPriorityQueue<E extends BaseElementWithWeight>
 	 * @param weight
 	 * @return the position of the new element
 	 */
-	private int _bin_locate_pos(double weight, boolean is_incremental)
-	{
+	private int binLocatePos(double weight, boolean isIncremental)	{
 		int mid = 0;
 		int low = 0;
-		int high = _element_weight_pair_list.size() - 1;
+		int high = elementWeightPairList.size() - 1;
 		//
-		while(low <= high)
-		{
-			mid = (low+high)/2;
-			if(_element_weight_pair_list.get(mid).get_weight() == weight)
-				return mid+1;
-			
-			if(is_incremental)
-			{
-				if(_element_weight_pair_list.get(mid).get_weight() < weight)
-				{
+		while (low <= high) {
+			mid = (low + high) / 2;
+			if (elementWeightPairList.get(mid).getWeight() == weight) {
+				return mid + 1;
+			}
+							
+			if (isIncremental) {
+				if (elementWeightPairList.get(mid).getWeight() < weight) {
 					high = mid - 1;
-				}else
-				{
+				} else {
 					low = mid + 1;
 				}	
-			}else
-			{
-				if(_element_weight_pair_list.get(mid).get_weight() > weight)
-				{
+			} else {
+				if (elementWeightPairList.get(mid).getWeight() > weight) {
 					high = mid - 1;
-				}else
-				{
+				} else {
 					low = mid + 1;
 				}
 			}	
@@ -115,14 +103,12 @@ public class QYPriorityQueue<E extends BaseElementWithWeight>
 	 * Add a new element in the queue. 
 	 * @param element
 	 */
-	public void add(E element)
-	{
-		_element_weight_pair_list.add(_bin_locate_pos(element.get_weight(), _is_incremental), element);
+	public void add(E element) {
+		elementWeightPairList.add(binLocatePos(element.getWeight(), isIncremental), element);
 		
-		if(_limit_size > 0 && _element_weight_pair_list.size() > _limit_size)
-		{
-			int size_of_results = _element_weight_pair_list.size();
-			_element_weight_pair_list.remove(size_of_results-1);			
+		if (limitSize > 0 && elementWeightPairList.size() > limitSize) {
+			int sizeOfResults = elementWeightPairList.size();
+			elementWeightPairList.remove(sizeOfResults - 1);			
 		}
 	}
 	
@@ -130,9 +116,8 @@ public class QYPriorityQueue<E extends BaseElementWithWeight>
 	 * It only reflects the size of the current results.
 	 * @return
 	 */
-	public int size()
-	{
-		return _element_weight_pair_list.size();
+	public int size() {
+		return elementWeightPairList.size();
 	}
 	
 	/**
@@ -140,23 +125,20 @@ public class QYPriorityQueue<E extends BaseElementWithWeight>
 	 * @param i
 	 * @return
 	 */
-	public E get(int i)
-	{
-		if(i >= _element_weight_pair_list.size())
-		{
-			System.err.println("The result :" + i +" doesn't exist!!!");
+	public E get(int i) {
+		if (i >= elementWeightPairList.size()) {
+			System.err.println("The result :" + i + " doesn't exist!!!");
 		}
-		return _element_weight_pair_list.get(i);
+		return elementWeightPairList.get(i);
 	}
 	
 	/**
 	 * Get the first element, and then remove it from the queue. 
 	 * @return
 	 */
-	public E poll()
-	{
-		E ret = _element_weight_pair_list.get(0);
-		_element_weight_pair_list.remove(0);
+	public E poll() {
+		E ret = elementWeightPairList.get(0);
+		elementWeightPairList.remove(0);
 		return ret;
 	}
 	
@@ -164,9 +146,8 @@ public class QYPriorityQueue<E extends BaseElementWithWeight>
 	 * Check if it's empty.
 	 * @return
 	 */
-	public boolean isEmpty()
-	{
-		return _element_weight_pair_list.isEmpty();
+	public boolean isEmpty() {
+		return elementWeightPairList.isEmpty();
 	}
 	
 }

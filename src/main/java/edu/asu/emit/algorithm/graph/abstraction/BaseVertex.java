@@ -32,13 +32,14 @@
 package edu.asu.emit.algorithm.graph.abstraction;
 
 /**
- * @author <a href='mailto:Yan.Qi@asu.edu'>Yan Qi</a>
- * @version $Revision: 430 $
- * @date $Date: 2008-07-27 16:31:56 -0700 (Sun, 27 Jul 2008) $
+ * The interface defines a vertex in graph
+ * 
+ * @author yqi
  */
-public interface BaseVertex
-{
-	int get_id();
-	double get_weight();
-	void set_weight(double weight);
+public interface BaseVertex {
+	
+	int getId();
+	double getWeight();
+	void setWeight(double weight);
+	
 }

@@ -42,22 +42,22 @@ import edu.asu.emit.algorithm.graph.shortestpaths.DijkstraShortestPathAlg;
 import edu.asu.emit.algorithm.graph.shortestpaths.YenTopKShortestPathsAlg;
 
 /**
+ * TODO Need to redo!
  * @author <a href='mailto:Yan.Qi@asu.edu'>Yan Qi</a>
  * @version $Revision: 784 $
  * @latest $Id: YenTopKShortestPathsAlgTest.java 46 2010-06-05 07:54:27Z yan.qi.asu $
  */
-public class YenTopKShortestPathsAlgTest
-{
+public class YenTopKShortestPathsAlgTest {
 	// The graph should be initiated only once to guarantee the correspondence 
 	// between vertex id and node id in input text file. 
-	static Graph graph = new VariableGraph("data/test_6_2");
+	private static Graph graph = new VariableGraph("data/test_6_2");
 	
 //	@Test
 	public void testDijkstraShortestPathAlg()
 	{
 		System.out.println("Testing Dijkstra Shortest Path Algorithm!");
 		DijkstraShortestPathAlg alg = new DijkstraShortestPathAlg(graph);
-		System.out.println(alg.get_shortest_path(graph.get_vertex(4), graph.get_vertex(5)));
+		System.out.println(alg.get_shortest_path(graph.getVertex(4), graph.getVertex(5)));
 	}
 	
 //	@Test
@@ -66,7 +66,7 @@ public class YenTopKShortestPathsAlgTest
 		System.out.println("Testing batch processing of top-k shortest paths!");
 		YenTopKShortestPathsAlg yenAlg = new YenTopKShortestPathsAlg(graph);
 		List<Path> shortest_paths_list = yenAlg.get_shortest_paths(
-				graph.get_vertex(4), graph.get_vertex(5), 100);
+				graph.getVertex(4), graph.getVertex(5), 100);
 		System.out.println(":"+shortest_paths_list);
 		System.out.println(yenAlg.get_result_list().size());	
 	}
@@ -76,7 +76,7 @@ public class YenTopKShortestPathsAlgTest
 	{
 		System.out.println("Obtain all paths in increasing order! - updated!");
 		YenTopKShortestPathsAlg yenAlg = new YenTopKShortestPathsAlg(
-				graph, graph.get_vertex(4), graph.get_vertex(5));
+				graph, graph.getVertex(4), graph.getVertex(5));
 		int i=0;
 		while(yenAlg.has_next())
 		{
@@ -93,7 +93,7 @@ public class YenTopKShortestPathsAlgTest
 	{
 		System.out.println("Graph 1 - ");
 		YenTopKShortestPathsAlg yenAlg = new YenTopKShortestPathsAlg(
-				graph, graph.get_vertex(4), graph.get_vertex(5));
+				graph, graph.getVertex(4), graph.getVertex(5));
 		int i=0;
 		while(yenAlg.has_next())
 		{
@@ -109,7 +109,7 @@ public class YenTopKShortestPathsAlgTest
 		graph = new VariableGraph("data/test_6_1");
 		YenTopKShortestPathsAlg yenAlg1 = new YenTopKShortestPathsAlg(graph);
 		List<Path> shortest_paths_list = yenAlg1.get_shortest_paths(
-				graph.get_vertex(4), graph.get_vertex(5), 100);
+				graph.getVertex(4), graph.getVertex(5), 100);
 		System.out.println(":"+shortest_paths_list);
 		System.out.println(yenAlg1.get_result_list().size());
 	}

@@ -138,7 +138,7 @@ public class DijkstraShortestPathAlg
 		BaseVertex end_vertex = is_source2sink ? sink_vertex : source_vertex;
 		BaseVertex start_vertex = is_source2sink ? source_vertex : sink_vertex;
 		_start_vertex_distance_index.put(start_vertex, 0d);
-		start_vertex.set_weight(0d);
+		start_vertex.setWeight(0d);
 		_vertex_candidate_queue.add(start_vertex);
 
 		// 2. start searching for the shortest path
@@ -162,7 +162,7 @@ public class DijkstraShortestPathAlg
 	{
 		// 1. get the neighboring vertices 
 		Set<BaseVertex> neighbor_vertex_list = is_source2sink ? 
-			_graph.get_adjacent_vertices(vertex) : _graph.get_precedent_vertices(vertex);
+			_graph.getAdjacentVertices(vertex) : _graph.getPrecedentVertices(vertex);
 			
 		// 2. update the distance passing on current vertex
 		for(BaseVertex cur_adjacent_vertex : neighbor_vertex_list)
@@ -174,8 +174,8 @@ public class DijkstraShortestPathAlg
 			double distance = _start_vertex_distance_index.containsKey(vertex)?
 					_start_vertex_distance_index.get(vertex) : Graph.DISCONNECTED;
 					
-			distance += is_source2sink ? _graph.get_edge_weight(vertex, cur_adjacent_vertex)
-					: _graph.get_edge_weight(cur_adjacent_vertex, vertex);
+			distance += is_source2sink ? _graph.getEdgeWeight(vertex, cur_adjacent_vertex)
+					: _graph.getEdgeWeight(cur_adjacent_vertex, vertex);
 
 			// 2.3 update the distance if necessary
 			if(!_start_vertex_distance_index.containsKey(cur_adjacent_vertex) 
@@ -185,7 +185,7 @@ public class DijkstraShortestPathAlg
 
 				_predecessor_index.put(cur_adjacent_vertex, vertex);
 				
-				cur_adjacent_vertex.set_weight(distance);
+				cur_adjacent_vertex.setWeight(distance);
 				_vertex_candidate_queue.add(cur_adjacent_vertex);
 			}
 		}
@@ -235,7 +235,7 @@ public class DijkstraShortestPathAlg
 		double cost = Graph.DISCONNECTED;
 		
 		// 1. get the set of successors of the input vertex
-		Set<BaseVertex> adj_vertex_set = _graph.get_adjacent_vertices(vertex);
+		Set<BaseVertex> adj_vertex_set = _graph.getAdjacentVertices(vertex);
 		
 		// 2. make sure the input vertex exists in the index
 		if(!_start_vertex_distance_index.containsKey(vertex))
@@ -251,7 +251,7 @@ public class DijkstraShortestPathAlg
 					_start_vertex_distance_index.get(cur_vertex) : Graph.DISCONNECTED;
 					
 			// 3.2 calculate the distance from the root to the input vertex
-			distance += _graph.get_edge_weight(vertex, cur_vertex);
+			distance += _graph.getEdgeWeight(vertex, cur_vertex);
 			//distance += ((VariableGraph)_graph).get_edge_weight_of_graph(vertex, cur_vertex);
 			
 			// 3.3 update the distance if necessary 
@@ -269,8 +269,8 @@ public class DijkstraShortestPathAlg
 		if(cost < Graph.DISCONNECTED) 
 		{
 			sub_path = new Path();
-			sub_path.set_weight(cost);
-			List<BaseVertex> vertex_list = sub_path.get_vertices();
+			sub_path.setWeight(cost);
+			List<BaseVertex> vertex_list = sub_path.getVertexList();
 			vertex_list.add(vertex);
 			
 			BaseVertex sel_vertex = _predecessor_index.get(vertex);
@@ -302,13 +302,13 @@ public class DijkstraShortestPathAlg
 			BaseVertex cur_vertex = vertex_list.remove(0);
 			double cost_of_cur_vertex = _start_vertex_distance_index.get(cur_vertex);
 			
-			Set<BaseVertex> pre_vertex_set = _graph.get_precedent_vertices(cur_vertex);
+			Set<BaseVertex> pre_vertex_set = _graph.getPrecedentVertices(cur_vertex);
 			for(BaseVertex pre_vertex : pre_vertex_set)
 			{
 				double cost_of_pre_vertex = _start_vertex_distance_index.containsKey(pre_vertex) ?
 						_start_vertex_distance_index.get(pre_vertex) : Graph.DISCONNECTED;
 						
-				double fresh_cost = cost_of_cur_vertex + _graph.get_edge_weight(pre_vertex, cur_vertex);
+				double fresh_cost = cost_of_cur_vertex + _graph.getEdgeWeight(pre_vertex, cur_vertex);
 				//double fresh_cost = cost_of_cur_vertex + ((VariableGraph)_graph).get_edge_weight_of_graph(pre_vertex, cur_vertex);
 				if(cost_of_pre_vertex > fresh_cost)
 				{

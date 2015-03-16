@@ -38,29 +38,27 @@ import edu.asu.emit.algorithm.graph.Graph;
 import edu.asu.emit.algorithm.graph.shortestpaths.DijkstraShortestPathAlg;
 
 /**
+ * TODO Need to redo!
  * @author <a href='mailto:Yan.Qi@asu.edu'>Yan Qi</a>
  * @version $Revision: 784 $
  * @latest $Id: ShortestPathAlgTest.java 784 2009-06-19 20:08:40Z qyan $
  */
-public class ShortestPathAlgTest
-{
-	Graph graph = null;
+public class ShortestPathAlgTest {
+	private Graph graph = null;
 	
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@BeforeTest
-	public void setUp() throws Exception
-	{
+	public void setUp() throws Exception {
 		// Import the graph from a file
 		graph = new Graph("data/test_50");
 	}
 
 	@Test
-	public void testShorstPathAlg()
-	{
+	public void testShorstPathAlg()	{
 		System.out.println("Testing Dijkstra Algorithm.");
 		DijkstraShortestPathAlg alg = new DijkstraShortestPathAlg(graph);
-		System.out.println(alg.get_shortest_path(graph.get_vertex(0), graph.get_vertex(38)));
+		System.out.println(alg.get_shortest_path(graph.getVertex(0), graph.getVertex(38)));
 	}
 }
