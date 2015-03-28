@@ -51,19 +51,19 @@ import edu.asu.emit.algorithm.utils.QYPriorityQueue;
  */
 public class YenTopKShortestPathsAlg
 {
-	private VariableGraph _graph = null;
+	private VariableGraph graph = null;
 
 	// intermediate variables
-	private List<Path> _result_list = new Vector<Path>();
-	private Map<Path, BaseVertex> _path_derivation_vertex_index = new HashMap<Path, BaseVertex>();
-	private QYPriorityQueue<Path> _path_candidates = new QYPriorityQueue<Path>();
+	private List<Path> resultList = new Vector<Path>();
+	private Map<Path, BaseVertex> pathDerivationVertexIndex = new HashMap<Path, BaseVertex>();
+	private QYPriorityQueue<Path> pathCandidates = new QYPriorityQueue<Path>();
 	
 	// the ending vertices of the paths
-	private BaseVertex _source_vertex = null;
-	private BaseVertex _target_vertex = null;
+	private BaseVertex sourceVertex = null;
+	private BaseVertex targetVertex = null;
 	
 	// variables for debugging and testing
-	private int _generated_path_num = 0;
+	private int generatedPathNum = 0;
 	
 	/**
 	 * Default constructor.
@@ -71,47 +71,39 @@ public class YenTopKShortestPathsAlg
 	 * @param graph
 	 * @param k
 	 */
-	public YenTopKShortestPathsAlg(BaseGraph graph)
-	{
-		this(graph, null, null);		
+	public YenTopKShortestPathsAlg(BaseGraph graph)	{
+        this(graph, null, null);
 	}
 	
 	/**
 	 * Constructor 2
 	 * 
 	 * @param graph
-	 * @param source_vt
-	 * @param target_vt
+	 * @param sourceVertex
+	 * @param targetVertex
 	 */
 	public YenTopKShortestPathsAlg(BaseGraph graph, 
-			BaseVertex source_vt, BaseVertex target_vt)
-	{
-		if(graph == null)
-		{
+			BaseVertex sourceVertex, BaseVertex targetVertex)	{
+		if (graph == null) {
 			throw new IllegalArgumentException("A NULL graph object occurs!");
 		}
-		//
-		_graph = new VariableGraph((Graph)graph);
-		_source_vertex = source_vt;
-		_target_vertex = target_vt;
-		//
-		_init();
+		this.graph = new VariableGraph((Graph)graph);
+		this.sourceVertex = sourceVertex;
+		this.targetVertex = targetVertex;
+		init();
 	}
 	
 	/**
 	 * Initiate members in the class. 
 	 */
-	private void _init()
-	{
+	private void init()	{
 		clear();
 		// get the shortest path by default if both source and target exist
-		if(_source_vertex != null && _target_vertex != null)
-		{
-			Path shortest_path = get_shortest_path(_source_vertex, _target_vertex);
-			if(!shortest_path.getVertexList().isEmpty())
-			{
-				_path_candidates.add(shortest_path);
-				_path_derivation_vertex_index.put(shortest_path, _source_vertex);				
+		if (sourceVertex != null && targetVertex != null) {
+			Path shortestPath = getShortestPath(sourceVertex, targetVertex);
+			if (!shortestPath.getVertexList().isEmpty()) {
+				pathCandidates.add(shortestPath);
+				pathDerivationVertexIndex.put(shortestPath, sourceVertex);
 			}
 		}
 	}
@@ -119,26 +111,24 @@ public class YenTopKShortestPathsAlg
 	/**
 	 * Clear the variables of the class. 
 	 */
-	public void clear()
-	{
-		_path_candidates = new QYPriorityQueue<Path>();
-		_path_derivation_vertex_index.clear();
-		_result_list.clear();
-		_generated_path_num = 0;
+	public void clear()	{
+		pathCandidates = new QYPriorityQueue<Path>();
+		pathDerivationVertexIndex.clear();
+		resultList.clear();
+		generatedPathNum = 0;
 	}
 	
 	/**
 	 * Obtain the shortest path connecting the source and the target, by using the
 	 * classical Dijkstra shortest path algorithm. 
 	 * 
-	 * @param source_vt
-	 * @param target_vt
+	 * @param sourceVertex
+	 * @param targetVertex
 	 * @return
 	 */
-	public Path get_shortest_path(BaseVertex source_vt, BaseVertex target_vt)
-	{
-		DijkstraShortestPathAlg dijkstra_alg = new DijkstraShortestPathAlg(_graph);
-		return dijkstra_alg.get_shortest_path(source_vt, target_vt);
+	public Path getShortestPath(BaseVertex sourceVertex, BaseVertex targetVertex)	{
+		DijkstraShortestPathAlg dijkstraAlg = new DijkstraShortestPathAlg(graph);
+		return dijkstraAlg.getShortestPath(sourceVertex, targetVertex);
 	}
 	
 	/**
@@ -146,9 +136,8 @@ public class YenTopKShortestPathsAlg
 	 * 
 	 * @return
 	 */
-	public boolean has_next()
-	{
-		return !_path_candidates.isEmpty();
+	public boolean hasNext() {
+        return !pathCandidates.isEmpty();
 	}
 	
 	/**
@@ -156,132 +145,124 @@ public class YenTopKShortestPathsAlg
 	 * 
 	 * @return
 	 */
-	public Path next()
-	{
+	public Path next() {
 		//3.1 prepare for removing vertices and arcs
-		Path cur_path = _path_candidates.poll();
-		_result_list.add(cur_path);
+		Path curPath = pathCandidates.poll();
+		resultList.add(curPath);
 
-		BaseVertex cur_derivation = _path_derivation_vertex_index.get(cur_path);
-		int cur_path_hash = 
-			cur_path.getVertexList().subList(0, cur_path.getVertexList().indexOf(cur_derivation)).hashCode();
+		BaseVertex curDerivation = pathDerivationVertexIndex.get(curPath);
+		int curPathHash =
+			curPath.getVertexList().subList(0, curPath.getVertexList().indexOf(curDerivation)).hashCode();
 		
-		int count = _result_list.size();
+		int count = resultList.size();
 		
 		//3.2 remove the vertices and arcs in the graph
-		for(int i=0; i<count-1; ++i)
-		{
-			Path cur_result_path = _result_list.get(i);
+		for (int i = 0; i < count-1; ++i) {
+			Path curResultPath = resultList.get(i);
 							
-			int cur_dev_vertex_id = 
-				cur_result_path.getVertexList().indexOf(cur_derivation);
+			int curDevVertexId =
+				curResultPath.getVertexList().indexOf(curDerivation);
 			
-			if(cur_dev_vertex_id < 0) continue;
+			if (curDevVertexId < 0) {
+                continue;
+            }
 
 			// Note that the following condition makes sure all candidates should be considered. 
 			/// The algorithm in the paper is not correct for removing some candidates by mistake. 
-			int path_hash = cur_result_path.getVertexList().subList(0, cur_dev_vertex_id).hashCode();
-			if(path_hash != cur_path_hash) continue;
+			int pathHash = curResultPath.getVertexList().subList(0, curDevVertexId).hashCode();
+			if (pathHash != curPathHash) {
+                continue;
+            }
 			
-			BaseVertex cur_succ_vertex = 
-				cur_result_path.getVertexList().get(cur_dev_vertex_id+1);
+			BaseVertex curSuccVertex =
+				curResultPath.getVertexList().get(curDevVertexId + 1);
 			
-			_graph.deleteEdge(new Pair<Integer,Integer>(
-					cur_derivation.getId(), cur_succ_vertex.getId()));
+			graph.deleteEdge(new Pair<Integer, Integer>(
+                    curDerivation.getId(), curSuccVertex.getId()));
 		}
 		
-		int path_length = cur_path.getVertexList().size();
-		List<BaseVertex> cur_path_vertex_list = cur_path.getVertexList();
-		for(int i=0; i<path_length-1; ++i)
-		{
-			_graph.deleteVertex(cur_path_vertex_list.get(i).getId());
-			_graph.deleteEdge(new Pair<Integer,Integer>(
-					cur_path_vertex_list.get(i).getId(), 
-					cur_path_vertex_list.get(i+1).getId()));
+		int pathLength = curPath.getVertexList().size();
+		List<BaseVertex> curPathVertexList = curPath.getVertexList();
+		for (int i = 0; i < pathLength-1; ++i) {
+			graph.deleteVertex(curPathVertexList.get(i).getId());
+			graph.deleteEdge(new Pair<Integer, Integer>(
+                    curPathVertexList.get(i).getId(),
+                    curPathVertexList.get(i + 1).getId()));
 		}
 		
 		//3.3 calculate the shortest tree rooted at target vertex in the graph
-		DijkstraShortestPathAlg reverse_tree = new DijkstraShortestPathAlg(_graph);
-		reverse_tree.get_shortest_path_flower(_target_vertex);
+		DijkstraShortestPathAlg reverseTree = new DijkstraShortestPathAlg(graph);
+		reverseTree.getShortestPathFlower(targetVertex);
 		
 		//3.4 recover the deleted vertices and update the cost and identify the new candidate results
-		boolean is_done = false;
-		for(int i=path_length-2; i>=0 && !is_done; --i)
-		{
+		boolean isDone = false;
+		for (int i=pathLength-2; i>=0 && !isDone; --i)	{
 			//3.4.1 get the vertex to be recovered
-			BaseVertex cur_recover_vertex = cur_path_vertex_list.get(i);			
-			_graph.recoverDeletedVertex(cur_recover_vertex.getId());
+			BaseVertex curRecoverVertex = curPathVertexList.get(i);
+			graph.recoverDeletedVertex(curRecoverVertex.getId());
 			
 			//3.4.2 check if we should stop continuing in the next iteration
-			if(cur_recover_vertex.getId() == cur_derivation.getId()) 
-			{
-				is_done = true;
+			if (curRecoverVertex.getId() == curDerivation.getId()) {
+				isDone = true;
 			}
 			
 			//3.4.3 calculate cost using forward star form
-			Path sub_path = reverse_tree.update_cost_forward(cur_recover_vertex);
+			Path subPath = reverseTree.updateCostForward(curRecoverVertex);
 			
 			//3.4.4 get one candidate result if possible
-			if(sub_path != null) 
-			{
-				++_generated_path_num;
+			if (subPath != null) {
+				++generatedPathNum;
 				
 				//3.4.4.1 get the prefix from the concerned path
 				double cost = 0; 
-				List<BaseVertex> pre_path_list = new Vector<BaseVertex>();
-				reverse_tree.correct_cost_backward(cur_recover_vertex);
+				List<BaseVertex> prePathList = new Vector<BaseVertex>();
+				reverseTree.correctCostBackward(curRecoverVertex);
 				
-				for(int j=0; j<path_length; ++j)
-				{
-					BaseVertex cur_vertex = cur_path_vertex_list.get(j);
-					if(cur_vertex.getId() == cur_recover_vertex.getId())
-					{
-						j=path_length;
-					}else
-					{
-						cost += _graph.getEdgeWeightOfGraph(cur_path_vertex_list.get(j), 
-								cur_path_vertex_list.get(j+1));
-						pre_path_list.add(cur_vertex);
+				for (int j=0; j<pathLength; ++j) {
+					BaseVertex curVertex = curPathVertexList.get(j);
+					if (curVertex.getId() == curRecoverVertex.getId()) {
+						j=pathLength;
+					} else {
+						cost += graph.getEdgeWeightOfGraph(curPathVertexList.get(j),
+								curPathVertexList.get(j+1));
+						prePathList.add(curVertex);
 					}
 				}
-				pre_path_list.addAll(sub_path.getVertexList());
+				prePathList.addAll(subPath.getVertexList());
 
 				//3.4.4.2 compose a candidate
-				sub_path.setWeight(cost+sub_path.getWeight());
-				sub_path.getVertexList().clear();
-				sub_path.getVertexList().addAll(pre_path_list);
+				subPath.setWeight(cost + subPath.getWeight());
+				subPath.getVertexList().clear();
+				subPath.getVertexList().addAll(prePathList);
 				
 				//3.4.4.3 put it in the candidate pool if new
-				if(!_path_derivation_vertex_index.containsKey(sub_path))
-				{
-					_path_candidates.add(sub_path);
-					_path_derivation_vertex_index.put(sub_path, cur_recover_vertex);
+				if (!pathDerivationVertexIndex.containsKey(subPath)) {
+					pathCandidates.add(subPath);
+					pathDerivationVertexIndex.put(subPath, curRecoverVertex);
 				}
 			}
 			
 			//3.4.5 restore the edge
-			BaseVertex succ_vertex = cur_path_vertex_list.get(i+1); 
-			_graph.recoverDeletedEdge(new Pair<Integer, Integer>(
-					cur_recover_vertex.getId(), succ_vertex.getId()));
+			BaseVertex succVertex = curPathVertexList.get(i + 1);
+			graph.recoverDeletedEdge(new Pair<Integer, Integer>(
+                    curRecoverVertex.getId(), succVertex.getId()));
 			
 			//3.4.6 update cost if necessary
-			double cost_1 = _graph.getEdgeWeight(cur_recover_vertex, succ_vertex) 
-				+ reverse_tree.get_start_vertex_distance_index().get(succ_vertex);
+			double cost1 = graph.getEdgeWeight(curRecoverVertex, succVertex)
+				+ reverseTree.getStartVertexDistanceIndex().get(succVertex);
 			
-			if(reverse_tree.get_start_vertex_distance_index().get(cur_recover_vertex) >  cost_1)
-			{
-				reverse_tree.get_start_vertex_distance_index().put(cur_recover_vertex, cost_1);
-				reverse_tree.get_predecessor_index().put(cur_recover_vertex, succ_vertex);
-				reverse_tree.correct_cost_backward(cur_recover_vertex);
+			if (reverseTree.getStartVertexDistanceIndex().get(curRecoverVertex) >  cost1) {
+				reverseTree.getStartVertexDistanceIndex().put(curRecoverVertex, cost1);
+				reverseTree.getPredecessorIndex().put(curRecoverVertex, succVertex);
+				reverseTree.correctCostBackward(curRecoverVertex);
 			}
 		}
 		
 		//3.5 restore everything
-		_graph.recoverDeletedEdges();
-		_graph.recoverDeletedVertices();
+		graph.recoverDeletedEdges();
+		graph.recoverDeletedVertices();
 		
-		//
-		return cur_path;
+		return curPath;
 	}
 	
 	/**
@@ -290,24 +271,22 @@ public class YenTopKShortestPathsAlg
 	 * 
 	 * @param source
 	 * @param sink
-	 * @param top_k
+	 * @param k
 	 * @return
 	 */
-	public List<Path> get_shortest_paths(BaseVertex source_vertex, 
-			BaseVertex target_vertex, int top_k)
-	{
-		_source_vertex = source_vertex;
-		_target_vertex = target_vertex;
+	public List<Path> getShortestPaths(BaseVertex source,
+                                       BaseVertex target, int k) {
+		sourceVertex = source;
+		targetVertex = target;
 		
-		_init();
+		init();
 		int count = 0;
-		while(has_next() && count < top_k)
-		{
+		while (hasNext() && count < k) {
 			next();
 			++count;
 		}
 		
-		return _result_list;
+		return resultList;
 	}
 		
 	/**
@@ -315,22 +294,19 @@ public class YenTopKShortestPathsAlg
 	 * (Note that some of them are duplicates)
 	 * @return
 	 */
-	public List<Path> get_result_list()
-	{
-		return _result_list;
+	public List<Path> getResultList() {
+        return resultList;
 	}
 
 	/**
 	 * The number of distinct candidates generated on the whole. 
 	 * @return
 	 */
-	public int get_cadidate_size()
-	{
-		return _path_derivation_vertex_index.size();
+	public int getCadidateSize() {
+		return pathDerivationVertexIndex.size();
 	}
 
-	public int get_generated_path_size()
-	{
-		return _generated_path_num;
+	public int getGeneratedPathSize() {
+		return generatedPathNum;
 	}
 }

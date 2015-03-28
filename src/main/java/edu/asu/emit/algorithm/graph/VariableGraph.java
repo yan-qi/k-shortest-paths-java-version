@@ -247,6 +247,6 @@ public class VariableGraph extends Graph {
 		graph.deleteVertex(3);
 		graph.deleteEdge(new Pair<Integer, Integer>(26, 41));
 		DijkstraShortestPathAlg alg = new DijkstraShortestPathAlg(graph);
-		System.out.println(alg.get_shortest_path(graph.getVertex(0), graph.getVertex(20)));
+		System.out.println(alg.getShortestPath(graph.getVertex(0), graph.getVertex(20)));
 	}
 }
